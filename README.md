@@ -30,7 +30,7 @@ Clone the repository:
 git clone [https://github.com/pattisapu01/kafka-performance-librdkafka.git](https://github.com/pattisapu01/kafka-performance-librdkafka.git)
 cd kafka-performance-librdkafka
 
-Configuration
+## configuration
 The project uses tye.yaml to configure and manage dependent services like Kafka, Zookeeper, Prometheus, and Grafana.
 
 tye.yaml
@@ -143,8 +143,7 @@ services:
 appsettings.json
 Configure the producer and consumer settings in appsettings.json:
 
-json
-Copy code
+
 {
   "Logging": {
     "LogLevel": {
@@ -193,19 +192,15 @@ Copy code
     "Endpoint": "http://zipkin:9411/api/v2/spans"
   }
 }
-Running the Benchmark
+## Running the Benchmark
 To start the benchmark, run the following command in your terminal:
 
-bash
-Copy code
-tye run
+tye run or docker-compose up --build
 This command will start all the services defined in the tye.yaml file, including Kafka, Zookeeper, Prometheus, Grafana, and the Kafka producer API.
 
 Producing Messages
 You can produce messages in parallel using the following endpoint:
 
-bash
-Copy code
 curl -X POST "http://localhost:8001/api/kafkaproducer/produce-parallel?messageCount=1000000"
 Results
 For an input batch of 1 million messages, we achieved around 37,000 messages per second on a 32 Core CPU (Intel i9-14900, 3.2 GHz) with 128 GB of RAM.
@@ -213,8 +208,8 @@ For an input batch of 1 million messages, we achieved around 37,000 messages per
 Key Configuration Tweaks
 Producer Settings:
 
-LingerMs: Set to 50 ms to allow batching of messages.
-BatchSize: Set to 32 KB to balance batch size and number of messages.
+LingerMs: Set to 100 ms to allow batching of messages.
+BatchSize: Set to 64 KB to balance batch size and number of messages.
 CompressionType: Using lz4 for better performance.
 Broker Settings:
 
