@@ -24,7 +24,6 @@ builder.Services.AddSwaggerGen();
 
 // Register Kafka consumer and background service
 builder.Services.AddSingleton<IKafkaFactory, KafkaFactory>();
-builder.Services.AddSingleton<IKafkaConsumer, KafkaConsumer>();
 builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
 builder.Services.AddHostedService<KafkaPoller>();
 
