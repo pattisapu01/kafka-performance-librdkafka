@@ -5,11 +5,6 @@ This project benchmarks the performance of Kafka producers using the `librdkafka
 ## Table of Contents
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
-- [Running the Benchmark](#running-the-benchmark)
-- [Results](#results)
-- [Future Work](#future-work)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Getting Started
 
