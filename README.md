@@ -192,7 +192,7 @@ Configure the producer and consumer settings in appsettings.json:
     "Endpoint": "http://zipkin:9411/api/v2/spans"
   }
 }
-## Running the Benchmark
+**## Running the Benchmark**
 To start the benchmark, run the following command in your terminal:
 
 tye run or docker-compose up --build
