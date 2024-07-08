@@ -1,0 +1,106 @@
+name: kafka-perf-test
+extensions:
+- name: zipkin
+services:
+- name: zookeeper
+  image: confluentinc/cp-zookeeper:7.5.3
+  bindings:
+   - protocol: http
+     port: 2181
+     containerPort: 2181
+  env:
+    - name: ZOOKEEPER_CLIENT_PORT
+      value: 2181
+  volumes:
+  - name: zk-storage-data
+    source: /zookeeper/.data
+    target: /var/lib/zookeeper/data
+  - name: zk-storage-log
+    source: /zookeeper/.datalog
+    target: /var/lib/zookeeper/log
+- name: kafka
+  image: confluentinc/cp-kafka:7.5.3
+  bindings:  
+   - protocol: http
+     name: kafka
+     port: 9094
+     containerPort: 9094
+  env:
+    - name: KAFKA_BROKER_ID
+      value: 1
+    - name: KAFKA_ZOOKEEPER_CONNECT
+      value: zookeeper:2181
+    - name: KAFKA_LISTENERS
+      value: "INTERNAL://:29094,EXTERNAL://:9094"
+    - name: KAFKA_ADVERTISED_LISTENERS
+      value: "INTERNAL://kafka:29094,EXTERNAL://localhost:9094"
+    - name: KAFKA_INTER_BROKER_LISTENER_NAME
+      value: "INTERNAL"
+    - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+      value: 1
+    - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+      value: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+    - name: KAFKA_NUM_NETWORK_THREADS
+      value: 4
+    - name: KAFKA_NUM_IO_THREADS
+      value: 8
+    - name: KAFKA_SOCKET_SEND_BUFFER_BYTES
+      value: 512000
+    - name: KAFKA_SOCKET_RECEIVE_BUFFER_BYTES
+      value: 512000
+    - name: KAFKA_SOCKET_REQUEST_MAX_BYTES
+      value: 209715200
+  volumes:
+  - name: kafka-storage
+    source: /kafka/.data
+    target: /var/lib/kafka/data
+
+- name: akhq
+  image: tchiotludo/akhq:latest
+  bindings:
+    - protocol: http
+      port: 8080
+      containerPort: 8080
+  env:
+    - name: AKHQ_CONFIGURATION
+      value: |
+        akhq:
+          connections:
+            kafka-cluster:
+              properties:
+                bootstrap.servers: "kafka:29094"
+- name: kafka-perf-test-api
+  project: Kafka-Perf-Test-API.csproj
+  replicas: 1
+  bindings:
+   - protocol: http
+     port: 8001
+     containerPort: 80
+- name: prometheus
+  image: prom/prometheus:latest
+  bindings:
+    - port: 9090
+      containerPort: 9090
+  volumes:
+    - name: prometheus-config
+      source: ./prometheus/prometheus.yml
+      target: /etc/prometheus/prometheus.yml
+    - name: prometheus-data
+      source: ./prometheus
+      target: /etc/prometheus
+
+- name: grafana
+  image: grafana/grafana:latest
+  bindings:
+    - port: 3000
+      containerPort: 3000
+  env:
+    - name: GF_SECURITY_ADMIN_PASSWORD
+      value: "admin"
+  volumes:
+    - name: grafana-data
+      source: ./grafana
+      target: /var/lib/grafana
+    - name: grafana-provisioning-datasources
+      source: ./grafana/datasources
+      target: /etc/grafana/datasources
